@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Calculadora</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+
+	<title>Calculadora de Horas</title>
+	<script type="text/javascript">
+		Calculadora("10:00-190:10");
+
+		function limpar() {
+			document.getElementById('visor').value = '';
+		}
+
+		function preencher(valor) {
+			document.getElementById('visor').value += valor;
+		}
+
+		function calcule() {
+			var resultado = 0;
+			resultado = document.getElementById('visor').value;
+			document.getElementById('visor').value = '';
+			var v = resultado.replace(',', '.');
+			if (v.substring(0, 1) != '+') {
+				v = '+' + v;
+			}
+			var operacao = v.split(/\d*:\d{1,2}:\d{1,2}|\d*:\d{1,2}|\s|\d*[0-9]|[:]/); // usando a função split com a expressão regular para obter a operação do Calculo.		
+			var valor = v.split(/[\/*+-]/); // usando a função split com a expressão regular para obter os valores separados pela operação.
+			var total = 0;
+			for (i = 1; i < valor.length; i++) {
+				if (Validacao(valor[i]) === true) {
+					if (ValidaHorario(valor[i]) === true) {
+						valor[i] = ConverterHorario(valor[i]);
+					}
+					else if (ValidaDecimal(valor[i]) === true) {
+						if (operacao[i - 1] === '+' || operacao[i - 1] === '-') // se a operação for uma soma ou uma subtração o Calculo será realizado com um valor decimal
+						{
+							valor[i] = CoverterDecimais(valor[i]);
+						}
+						else {
+							valor[i] = parseInt(valor[i], 10);
+						}
+					}
+					total = eval(total + operacao[i - 1] + valor[i]);
+				}
+				else {
+					throw new SyntaxError("'" + valor[i] + "' é inválido!");
+				}
+			}
+			return document.getElementById('visor').value = FormatarHorario(total);
+		}
+
+		function CoverterDecimais(v) //A função converte numero decimal para segundos.
+		{
+			return parseInt(v * 3600, 10);
+		}
+
+		function ConverterHorario(value) //A função faz a conversão de hora e minuto para segundos.
+		{
+			var regex = new RegExp(/^([+-])?(\d*):(\d{1,2})(:\d{1,2})?$/); // Define uma expressão regular para validar se o horário informado está no formato hh:mm:ss.
+			var matches = regex.exec(value);
+			if (matches !== null) {
+				var hora = parseInt(matches[2], 10);
+				var minuto = parseInt(matches[3], 10);
+				if (segundos == null) {
+					var segundos = parseInt(0, 10);
+				}
+				else {
+					var segundos = parseInt(matches[4], 10);
+				}
+				return (parseInt(hora, 10) * 3600) + (parseInt(minuto, 10) * 60) + (parseInt(segundos, 10)); // retorna transformando Hora e Minuto em Segundos	
+			}
+			else {
+				throw new Error('Houve um erro na conversão.');
+			}
+		}
+
+		function FormatarHorario(value) //A função converte os segundos para hora, minuto e segundo retornando o horario formatado HH:MM:SS.
+		{
+			var Hora = parseInt(value / 3600, 10); // De segundo para hora dividi por 3600
+			if (Hora < 0) {
+				Hora = Hora.toString().length >= 3 ? Hora.toString() : ('0' + Hora); // Formatando a Minuto para 00
+				Hora = Hora.replace('-', '');
+				Hora = ('-' + Hora);
+			}
+			else {
+				Hora = Hora.toString().length >= 2 ? Hora.toString() : ('0' + Hora); // Formatando a Minuto para 00
+			}
+			var Minuto = value % 3600; // Descobrindo a quantidade de segundos dos minutos
+			Minuto = parseInt(Minuto / 60, 10); // De segundo para minuto dividi por 60
+			if (Minuto <= 0) {
+				Minuto = Minuto.toString().length >= 3 ? Minuto.toString() : ('0' + Minuto); // Formatando a Minuto para 00
+				Minuto = Minuto.replace('-', '');
+			}
+			else {
+				Minuto = Minuto.toString().length == 2 ? Minuto.toString() : ('0' + Minuto); // Formatando a Minuto para 00
+			}
+			var horaFinal = Hora + ':' + Minuto; // + ':00';
+			if (ValidaHorario(horaFinal) === true) // Define uma expressão regular para validar se o horário está no formato HH:MM.
+			{
+				return horaFinal;
+			}
+			else {
+				throw new Error('Houve um erro na conversão do horário.' + horaFinal);
+			}
+		}
+
+		function Validacao(txt) {
+			var re = new RegExp(/^(\d*)(:([0-5][0-9])){1,2}(:([0-5][0-9]){1,2})?$|^\d*[0-9](\.\d*[0-9])?$/);
+			var myArray = re.test(txt);
+			if (myArray === true) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		function ValidaDecimal(txt) {
+			var re = new RegExp(/^\d*[0-9](\.\d*[0-9])?$/);
+			var myArray = re.test(txt);
+			if (myArray === true) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		function ValidaHorario(txt) {
+			var re = new RegExp(/^[+-]?(\d*)(:([0-5][0-9])){1,2}(:([0-5][0-9]){1,2})?$/);
+			var myArray = re.test(txt);
+			if (myArray === true) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+	</script>
+
+
+
+
+	<style type="text/css">
+		.popup {
+			position: fixed;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			margin: auto;
+			width: 300px;
+			height: 325px;
+			padding: 0px;
+			text-align: center;
+			display: block;
+		}
+
+		.botao {
+			width: 45px;
+			text-align: center;
+		}
+
+		.botao-igual {
+			width: 70px;
+		}
+
+
+		.botaofechar {
+			width: 20px;
+			height: 20px;
+			margin-left: 240px;
+			margin-bottom: 5px;
+			padding-bottom: 20px;
+			padding-right: 15px;
+			font-size: 10px;
+			text-align: left;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="popup" class="popup">
+		<div class="box-body">
+			<div class="panel panel-primary">
+				<div class="panel-body">
+					<form name="calc" action="#">
+						<div class="">
+							<div>
+								<input type="text" class="form-control"
+									onKeyPress="if ((window.event ? event.keyCode : event.which) == 13) { calcule();}"
+									id="visor" maxlength="31"> <br /><br />
+							</div>
+							<div class="col-md-12">
+								<input type="button" class="btn btn-primary botao" value="7"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="8"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="9"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="+"
+									onclick="preencher('+');" />
+								<br /><br />
+							</div>
+							<div class="col-md-12">
+								<input type="button" class="btn btn-primary botao" value="4"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="5"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="6"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="-"
+									onclick="preencher('-');" />
+								<br /><br />
+							</div>
+							<div class="col-md-12">
+								<input type="button" class="btn btn-primary botao" value="1"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="2"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao" value="3"
+									onclick="preencher(value);" />
+
+								<input type="button" class="btn btn-primary botao" value="C" onclick="limpar();" />
+								<br /><br />
+							</div>
+							<div class="col-md-12">
+								<input type="button" class="btn btn-primary botao-igual" value=":"
+									onclick="preencher(':');" />
+								<input type="button" class="btn btn-primary botao" value="0"
+									onclick="preencher(value);" />
+								<input type="button" class="btn btn-primary botao-igual" value="="
+									onclick="calcule();" />
+								<br /><br />
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
